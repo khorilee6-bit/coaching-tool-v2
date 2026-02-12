@@ -82,7 +82,8 @@ def get_valid_gemini_model():
 
 active_model_name = get_valid_gemini_model()
 model = genai.GenerativeModel(active_model_name)
-st.sidebar.success(f"🤖 Connected to: {active_model_name}")
+st.sidebar.success(f"🤖 Connected")
+#st.sidebar.success(f"🤖 Connected to: {active_model_name}")
 
 # 4. CONFIGURATION SIDEBAR
 with st.sidebar:
