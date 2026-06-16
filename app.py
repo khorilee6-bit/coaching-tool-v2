@@ -225,8 +225,7 @@ if sheet_url:
                         
                         try:
                             response = model.generate_content(prompt)
-                            clean_json = response.text.replace('```json', '').replace('
-```', '').strip()
+                            clean_json = response.text.replace('```json', '').replace('```', '').strip()
                             ai_data = json.loads(clean_json)
                         except:
                             ai_data = {}
