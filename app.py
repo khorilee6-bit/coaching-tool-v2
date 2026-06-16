@@ -157,7 +157,7 @@ if sheet_url:
                         missed = [str(val) for col in df.columns if "Skill Performance Area Missed" in col for val in agent_rows[col] if val]
                         strengths = [str(val) for col in df.columns if "Strength" in col for val in agent_rows[col] if val]
                         
-                        # B. AI GENERATION (RESTORED PROMPTS EXACTLY)
+                        # B. AI GENERATION (PROMPT UPDATED FOR CONCISENESS AND ACCURACY)
                         prompt = f"""
                         You are Khori, an expert QA Coach.
                         INPUT DATA: 
@@ -165,15 +165,15 @@ if sheet_url:
                         "STRENGTHS": { ' || '.join(strengths) }
                         
                         TASK: Output JSON following these strict rules:
-                        1. **Issues:** Identify 3 DISTINCT and DIFFERENT critical issues from MISSED OPPORTUNITIES.
-                        2. **Trend Identification:** Analyze the data to find a pattern. Do not just list random errors; identify the specific "Stimulus" (trigger) that causes the agent's performance to break down. Find the common thread for each. Do not repeat the same behavior or trend for multiple issues.
+                        1. **Issues:** Identify 3 DISTINCT and DIFFERENT critical issues directly from the MISSED OPPORTUNITIES data. Do not invent behaviors not present in the text.
+                        2. **Trend Identification:** Analyze the data to find a pattern. Identify the specific "Stimulus" (trigger) that causes the agent's performance to break down based strictly on the QA notes.
                         3. **Behavior Syntax (CRITICAL):** For the "issue" fields, you MUST strictly follow this format: "Whenever <STIMULI>, <SYMPTOM> by <ACTION>". 
-                            - <STIMULI>: The situation/trigger (e.g., "the customer is in a hurry").
-                            - <SYMPTOM>: The high-level failure (e.g., "lack of urgency").
-                            - <ACTION>: The observable behavior (e.g., "ignoring cues and reading the full script slowly").
+                            - <STIMULI>: The situation/trigger based on the QA notes.
+                            - <SYMPTOM>: The high-level failure.
+                            - <ACTION>: The specific, observable behavior EXACTLY as described in the QA notes. Do not generalize or reword it heavily.
                         4. **Sort:** Sort by severity: AF > Total Resolution > Professionalism > Sincerity.
                         5. **Primary Focus:** MUST be the most critical issue (Issue 1) based on the identified trend, create a high-level summary title (Category) that describes the main area of improvement (e.g., "Resolution Accuracy," "Engagement & Tone," or "Process Efficiency"). Do NOT just copy Issue 1.
-                        6. **Tone:** SIMPLE, DIRECT, CONVERSATIONAL. No big words.
+                        6. **Tone:** CONCISE, DIRECT, AND GROUNDED. Capture the essence of the actual behavior written by the QA. Do not invent long-winded, hypothetical, or textbook explanations. Rely strictly on what the QA documented.
                         7. **Quick Fixes:** Provide a short, simple corrective sentence for each issue.
                         8. **Habits:** Map "Missed" to Reference List (Essential Habit). Map "Strength" to Reference List (Essential Habit Performed).
                         9. **Constraints:** - 'action_plan' must be under 245 characters.
@@ -183,22 +183,22 @@ if sheet_url:
                         OUTPUT JSON KEYS:
                         {{
                           "primary_focus": "Same as Issue 1 name. A high-level category title summarizing the main trend.",
-                          "why_matters": "Importance of fixing this trend.",
+                          "why_matters": "Importance of fixing this specific documented trend.",
                           "action_plan": "SMART plan (Max 245 chars).",
                           "impact_question": "A question to help the agent self-reflect, followed by your insight on how improving this behavior will have a positive impact on their KPIs and the customer experience. (Max 245 chars).",
                           "essential_habit": "From Reference List (Matches Issue 1).",
                           "essential_habit_performed": "From Reference List (Matches Strength).",
                           "likely_root_cause": "The underlying skill or will gap.",
-                          "root_cause_questions": "3 questions to ask the agent.",
+                          "root_cause_questions": "3 short questions to ask the agent.",
                           "final_thoughts": "Closing encouragement from coach to agent.",
                           "issue_1": "Whenever <STIMULI>, <SYMPTOM> by <ACTION>", 
-                          "comment_1": "A professional coach's insight analyzing the behavior. Do NOT repeat the problem; provide unique insight into why this behavior is detrimental to the customer experience.", 
+                          "comment_1": "A concise coach's insight (1-2 sentences max). Focus strictly on the actual behavior written in the QA notes and its direct impact. No fluff or wordy explanations.", 
                           "fix_1": "Simple fix.",
                           "issue_2": "Whenever <STIMULI>, <SYMPTOM> by <ACTION>", 
-                          "comment_2": "A professional coach's insight analyzing the behavior. Do NOT repeat the problem; provide unique insight into why this behavior is detrimental to the customer experience.", 
+                          "comment_2": "A concise coach's insight (1-2 sentences max). Focus strictly on the actual behavior written in the QA notes and its direct impact. No fluff or wordy explanations.", 
                           "fix_2": "Simple fix.",
                           "issue_3": "Whenever <STIMULI>, <SYMPTOM> by <ACTION>", 
-                          "comment_3": "A professional coach's insight analyzing the behavior. Do NOT repeat the problem; provide unique insight into why this behavior is detrimental to the customer experience.", 
+                          "comment_3": "A concise coach's insight (1-2 sentences max). Focus strictly on the actual behavior written in the QA notes and its direct impact. No fluff or wordy explanations.", 
                           "fix_3": "Simple fix."
                         }}
 
@@ -225,7 +225,8 @@ if sheet_url:
                         
                         try:
                             response = model.generate_content(prompt)
-                            clean_json = response.text.replace('```json', '').replace('```', '').strip()
+                            clean_json = response.text.replace('```json', '').replace('
+```', '').strip()
                             ai_data = json.loads(clean_json)
                         except:
                             ai_data = {}
